@@ -377,6 +377,8 @@ void PythonEnvironment::addPythonModulePathsFromDirectory(const std::string& dir
 
 void PythonEnvironment::addPythonModulePathsFromPlugin(const std::string& pluginName)
 {
+    sofa::helper::system::PluginRepository.displayPaths();
+
     std::map<std::string, Plugin>& map = PluginManager::getInstance().getPluginMap();
     for( const auto& elem : map)
     {
