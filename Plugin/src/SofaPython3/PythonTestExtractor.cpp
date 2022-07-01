@@ -73,14 +73,14 @@ py::object PythonTestExtractor::getTestSuite(py::module& unittest, py::module& m
 
 std::vector<PythonTestData> PythonTestExtractor::extract () const
 {
-    PluginManager::getInstance().loadPlugin("SofaPython3");
+    //PluginManager::getInstance().loadPlugin("SofaPython3");
 
     PythonEnvironment::Init();
     PythonEnvironment::gil scoped_gil;
 
     py::module unittest = py::module::import("unittest");
-    py::module::import("SofaRuntime");
-    py::module::import("Sofa");
+    //py::module::import("SofaRuntime");
+    //py::module::import("Sofa");
     py::object globals = py::module::import("__main__").attr("__dict__");
 
     std::vector<PythonTestData> list;
