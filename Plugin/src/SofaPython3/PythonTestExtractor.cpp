@@ -30,6 +30,7 @@
 using sofa::helper::system::PluginManager;
 
 #include <sofa/helper/logging/Messaging.h>
+#include <sofa/simulation/graph/init.h>
 
 using sofa::helper::system::SetDirectory;
 namespace py = pybind11;
@@ -75,12 +76,12 @@ std::vector<PythonTestData> PythonTestExtractor::extract () const
 {
     //PluginManager::getInstance().loadPlugin("SofaPython3");
 
+    sofa::simulation::graph::init();
+
     PythonEnvironment::Init();
     PythonEnvironment::gil scoped_gil;
 
     py::module unittest = py::module::import("unittest");
-    //py::module::import("SofaRuntime");
-    //py::module::import("Sofa");
     py::object globals = py::module::import("__main__").attr("__dict__");
 
     std::vector<PythonTestData> list;

@@ -133,14 +133,14 @@ PYBIND11_MODULE(SofaRuntime, m) {
               )doc";
 
     // These are needed to force the dynamic loading of module dependencies (found in CMakeLists.txt)
-    sofa::core::init();
     sofa::helper::init();
+    sofa::core::init();
     sofa::simulation::core::init();
-    sofa::simulation::graph::init();
     sofa::simulation::common::init();
+    sofa::simulation::graph::init();
 
     // Add the plugin directory to PluginRepository
-    const std::string& pluginDir = Utils::getExecutableDirectory();
+    const std::string& pluginDir = Utils::getExecutableDirectory(); // not correct for linux/mac
     PluginRepository.addFirstPath(pluginDir);
 
     /// We need to import the project dependencies
