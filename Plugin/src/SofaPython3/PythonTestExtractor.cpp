@@ -79,8 +79,15 @@ std::vector<PythonTestData> PythonTestExtractor::extract () const
 
     sofa::simulation::graph::init();
     std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
+    try
+    {
+        PythonEnvironment::Init();
+    }
+    catch(const std::exception& e)
+    {
+        msg_error("PythonTestExtractor py init") << e.what();
+    }
 
-    PythonEnvironment::Init();
     std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     PythonEnvironment::gil scoped_gil;
     std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
