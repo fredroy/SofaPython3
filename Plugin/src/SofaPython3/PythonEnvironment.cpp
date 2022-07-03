@@ -241,17 +241,21 @@ void PythonEnvironment::Init()
     addPythonModulePathsFromDirectory( Utils::getSofaPathPrefix() );
 
     executePython([]{ getStaticData()->m_sofaModule = py::module::import("Sofa"); });
+    std::cout << "PyEnvironnement stuff1" << std::endl;
     executePython([]{ getStaticData()->m_sofaRuntimeModule = py::module::import("SofaRuntime"); });
+    std::cout << "PyEnvironnement stuff2" << std::endl;
     executePython([]{ PyRun_SimpleString("import SofaRuntime");});
-
+    std::cout << "PyEnvironnement stuff3" << std::endl;
     // python livecoding related
     executePython([]{ PyRun_SimpleString("from Sofa.livecoding import onReimpAFile");});
 
     // general sofa-python stuff
 
+    std::cout << "PyEnvironnement stuff4" << std::endl;
     // python modules are automatically reloaded at each scene loading
     setAutomaticModuleReload( true );
 
+    std::cout << "PyEnvironnement stuff5" << std::endl;
     // Initialize pluginLibraryPath by reading PluginManager's map
     std::map<std::string, Plugin>& map = PluginManager::getInstance().getPluginMap();
     for( const auto& elem : map)
@@ -262,6 +266,7 @@ void PythonEnvironment::Init()
             pluginLibraryPath = elem.first;
         }
     }
+    std::cout << "PyEnvironnement stuff6" << std::endl;
 
     s_isInitialized = true;
 }
