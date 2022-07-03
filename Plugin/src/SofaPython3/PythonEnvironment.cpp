@@ -235,11 +235,14 @@ void PythonEnvironment::Init()
     }
 
     // Add sites-packages wrt the plugin
+    std::cout << "PyEnvironnement stuff000" << std::endl;
     addPythonModulePathsFromPlugin("SofaPython3");
 
+    std::cout << "PyEnvironnement stuff00" << std::endl;
     // Lastly, we (try to) add modules from the root of SOFA
     addPythonModulePathsFromDirectory( Utils::getSofaPathPrefix() );
 
+    std::cout << "PyEnvironnement stuff0" << std::endl;
     executePython([]{ getStaticData()->m_sofaModule = py::module::import("Sofa"); });
     std::cout << "PyEnvironnement stuff1" << std::endl;
     executePython([]{ getStaticData()->m_sofaRuntimeModule = py::module::import("SofaRuntime"); });
