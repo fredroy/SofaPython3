@@ -62,6 +62,7 @@ namespace sofapython3
 /// The first parameter must be named the same as the module file to load.
 PYBIND11_MODULE(Core, core)
 {
+    std::cout << "COOOOOOOOOOORRRRRRREEEEE" << std::endl;
     // These are needed to force the dynamic loading of module dependencies (found in CMakeLists.txt)
     sofa::core::init();
     sofa::helper::init();
