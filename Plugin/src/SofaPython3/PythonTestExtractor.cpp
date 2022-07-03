@@ -88,6 +88,7 @@ std::vector<PythonTestData> PythonTestExtractor::extract () const
 
     for (const auto & test : p_tests) {
         std::string fullpath = (test.path + "/" + test.filename);
+        std::cout << fullpath << std::endl;
         SetDirectory localDir(fullpath.c_str());
         std::string basename = SetDirectory::GetFileNameWithoutExtension(
             SetDirectory::GetFileName(test.filename.c_str()).c_str()
