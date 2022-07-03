@@ -104,14 +104,22 @@ print("---------------------------------------")
 sys.stdout.flush()
 
 import Sofa.constants
+print("---------------------------------------")
 import Sofa.Helper
+print("---------------------------------------")
 import Sofa.Core
+print("---------------------------------------")
 import Sofa.Simulation
+print("---------------------------------------")
 import Sofa.Types
+print("---------------------------------------")
 import Sofa.Components
+print("---------------------------------------")
 import SofaTypes
+print("---------------------------------------")
 
 from .prefab import *
+print("---------------------------------------")
 
 __all__=["constants", "Helper", "Core", "Simulation", "Types", "SofaTypes", "prefab"]
 
@@ -125,6 +133,7 @@ except:
     # e.g. plugin's modules defined from c++
     __SofaPythonEnvironment_modulesExcludedFromReload = []
 
+print("---------------------------------------")
 
 def unloadModules():
     """ call this function to unload python modules and to force their reload
