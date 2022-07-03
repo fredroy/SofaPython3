@@ -75,14 +75,20 @@ py::object PythonTestExtractor::getTestSuite(py::module& unittest, py::module& m
 std::vector<PythonTestData> PythonTestExtractor::extract () const
 {
     //PluginManager::getInstance().loadPlugin("SofaPython3");
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     sofa::simulation::graph::init();
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     PythonEnvironment::Init();
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     PythonEnvironment::gil scoped_gil;
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     py::module unittest = py::module::import("unittest");
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     py::object globals = py::module::import("__main__").attr("__dict__");
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     std::vector<PythonTestData> list;
     std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
