@@ -141,10 +141,13 @@ void PythonTestExtractor::addTestDirectory (const std::string & dir, const std::
 {
     std::vector<std::string> files;
     sofa::helper::system::FileSystem::listDirectory(dir, files);
+    std::cout << dir << std::endl;
     for(const std::string& file : files) {
+        std::cout << file << std::endl;
         if( sofa::helper::starts_with(prefix, file)
             && (sofa::helper::ends_with(".py", file) || sofa::helper::ends_with(".py3", file)))
         {
+            std::cout << "adding: " << file << std::endl;
             addTestFile(file, dir, testgroup);
         }
     }
