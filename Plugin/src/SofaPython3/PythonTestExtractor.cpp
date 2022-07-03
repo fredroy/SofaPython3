@@ -75,10 +75,8 @@ py::object PythonTestExtractor::getTestSuite(py::module& unittest, py::module& m
 std::vector<PythonTestData> PythonTestExtractor::extract () const
 {
     //PluginManager::getInstance().loadPlugin("SofaPython3");
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     sofa::simulation::graph::init();
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     try
     {
         PythonEnvironment::Init();
@@ -88,17 +86,12 @@ std::vector<PythonTestData> PythonTestExtractor::extract () const
         msg_error("PythonTestExtractor py init") << e.what();
     }
 
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     PythonEnvironment::gil scoped_gil;
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     py::module unittest = py::module::import("unittest");
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
     py::object globals = py::module::import("__main__").attr("__dict__");
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     std::vector<PythonTestData> list;
-    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     for (const auto & test : p_tests) {
         std::string fullpath = (test.path + "/" + test.filename);
@@ -148,7 +141,6 @@ void PythonTestExtractor::addTestFile (const std::string & filename,
                                        const std::string & testgroup,
                                        const std::vector<std::string> & arguments)
 {
-    std::cout << "adding: " << path << filename << std::endl;
     p_tests.push_back({filename, path, testgroup, arguments});
 }
 
@@ -158,7 +150,6 @@ void PythonTestExtractor::addTestDirectory (const std::string & dir, const std::
     sofa::helper::system::FileSystem::listDirectory(dir, files);
     std::cout << dir << std::endl;
     for(const std::string& file : files) {
-        std::cout << file << std::endl;
         if( sofa::helper::starts_with(prefix, file)
             && (sofa::helper::ends_with(".py", file) || sofa::helper::ends_with(".py3", file)))
         {

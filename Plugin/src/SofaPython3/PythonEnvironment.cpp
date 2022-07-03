@@ -147,6 +147,9 @@ SOFAPYTHON3_API py::module PythonEnvironment::importFromFile(const std::string& 
 
 void PythonEnvironment::Init()
 {
+    if(s_isInitialized)
+        return;
+
     std::string pythonVersion = Py_GetVersion();
     msg_info("SofaPython3") << "Initializing with python version " << pythonVersion;
 
