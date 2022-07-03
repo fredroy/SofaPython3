@@ -85,10 +85,11 @@ std::vector<PythonTestData> PythonTestExtractor::extract () const
     py::object globals = py::module::import("__main__").attr("__dict__");
 
     std::vector<PythonTestData> list;
+    std::cout << "extract () p_tests: " << p_tests.size() << std::endl;
 
     for (const auto & test : p_tests) {
         std::string fullpath = (test.path + "/" + test.filename);
-        std::cout << fullpath << std::endl;
+        std::cout << "extract () file: " << fullpath << std::endl;
         SetDirectory localDir(fullpath.c_str());
         std::string basename = SetDirectory::GetFileNameWithoutExtension(
             SetDirectory::GetFileName(test.filename.c_str()).c_str()
@@ -134,6 +135,7 @@ void PythonTestExtractor::addTestFile (const std::string & filename,
                                        const std::string & testgroup,
                                        const std::vector<std::string> & arguments)
 {
+    std::cout << "adding: " << path << filename << std::endl;
     p_tests.push_back({filename, path, testgroup, arguments});
 }
 
@@ -147,7 +149,6 @@ void PythonTestExtractor::addTestDirectory (const std::string & dir, const std::
         if( sofa::helper::starts_with(prefix, file)
             && (sofa::helper::ends_with(".py", file) || sofa::helper::ends_with(".py3", file)))
         {
-            std::cout << "adding: " << file << std::endl;
             addTestFile(file, dir, testgroup);
         }
     }
