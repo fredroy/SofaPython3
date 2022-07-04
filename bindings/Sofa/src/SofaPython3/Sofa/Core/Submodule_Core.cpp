@@ -64,12 +64,15 @@ PYBIND11_MODULE(Core, core)
 {
     std::cout << "COOOOOOOOOOORRRRRRREEEEE" << std::endl;
     // These are needed to force the dynamic loading of module dependencies (found in CMakeLists.txt)
-    sofa::core::init();
     sofa::helper::init();
-    sofa::simulation::core::init();
     sofa::defaulttype::init();
+    sofa::core::init();
+    sofa::simulation::core::init();
+    std::cout << "simulation init done" << std::endl;
     sofa::component::collision::response::contact::init();
+    std::cout << "collision init done" << std::endl;
     sofa::component::visual::init();
+    std::cout << "visual init done" << std::endl;
 
     core.doc() = R"doc(
            Scene components
