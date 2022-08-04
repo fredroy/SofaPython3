@@ -21,7 +21,7 @@ class Test(unittest.TestCase):
                                                      "Sofa.Component.Topology.Container.Dynamic"])
 
         root.addObject("FreeMotionAnimationLoop", solveVelocityConstraintFirst=True)
-        tempsolver = root.addObject("LCPConstraintSolver", name="constraint_solver", tolerance=1e-9, maxIt=1000)
+        tempsolver = root.addObject("LCPConstraintSolver", name="constraint_solver", tolerance="1e-9", maxIt="1000")
         root.addObject("StringMeshCreator", name="loader", resolution="20")
 
         root.addObject("EulerImplicitSolver")
