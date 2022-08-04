@@ -21,7 +21,7 @@ class Test(unittest.TestCase):
                                                      "Sofa.Component.Topology.Container.Dynamic"])
 
         root.addObject("FreeMotionAnimationLoop", solveVelocityConstraintFirst=True)
-        root.addObject("LCPConstraintSolver", name="constraint_solver", tolerance=1e-9, maxIt=1000)
+        tempsolver = root.addObject("LCPConstraintSolver", name="constraint_solver", tolerance=1e-9, maxIt=1000)
         root.addObject("StringMeshCreator", name="loader", resolution="20")
 
         root.addObject("EulerImplicitSolver")
@@ -43,11 +43,12 @@ class Test(unittest.TestCase):
         Sofa.Simulation.init(root)
         Sofa.Simulation.animate(root, 0.0001)
 
+        W = tempsolver.W()
+
+        self.assertEqual(W.ndim, 2)
+        self.assertEqual(W.shape, (38, 38))
+
         return root
 
     def test_matrix_access(self):
         root = self.simulate_pendulum()
-        W = root.constraint_solver.W()
-
-        self.assertEqual(W.ndim, 2)
-        self.assertEqual(W.shape, (38, 38))
