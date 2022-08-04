@@ -25,38 +25,38 @@
 #include <SofaPython3/Sofa/Core/Binding_Base.h>
 #include <SofaPython3/PythonFactory.h>
 
-#include <sofa/component/constraint/lagrangian/solver/ConstraintSolverImpl.h>
+#include <sofa/component/constraint/lagrangian/solver/GenericConstraintSolver.h>
 
 namespace py { using namespace pybind11; }
 
 namespace sofapython3 {
 
-using sofa::component::constraint::lagrangian::solver::ConstraintSolverImpl;
+using sofa::component::constraint::lagrangian::solver::GenericConstraintSolver;
 using EigenDenseMatrix = Eigen::Matrix<SReal, Eigen::Dynamic, Eigen::Dynamic>;
 using EigenMatrixMap = Eigen::Map<EigenDenseMatrix>;
 
 void moduleAddConstraintSolver(py::module &m)
 {
-    const auto typeName = ConstraintSolverImpl::GetClass()->className;
-    py::class_<ConstraintSolverImpl,
+    const auto typeName = GenericConstraintSolver::GetClass()->className;
+    py::class_<GenericConstraintSolver,
                sofa::core::objectmodel::BaseObject,
-               sofapython3::py_shared_ptr<ConstraintSolverImpl> > c(m, typeName.c_str(), sofapython3::doc::constraintsolver::constraintSolverClass);
+               sofapython3::py_shared_ptr<GenericConstraintSolver> > c(m, typeName.c_str(), sofapython3::doc::constraintsolver::constraintSolverClass);
 
-    c.def("W", [](ConstraintSolverImpl& self) -> EigenMatrixMap
+    c.def("W", [](GenericConstraintSolver& self) -> EigenMatrixMap
     {
         assert(self.getConstraintProblem());
         auto& W_matrix = self.getConstraintProblem()->W;
         return { W_matrix.ptr(), W_matrix.rows(), W_matrix.cols()};
     }, sofapython3::doc::constraintsolver::constraintSolver_W);
 
-    c.def("lambda_force", [](ConstraintSolverImpl& self) -> Eigen::Map<Eigen::Matrix<SReal, Eigen::Dynamic, 1> >
+    c.def("lambda_force", [](GenericConstraintSolver& self) -> Eigen::Map<Eigen::Matrix<SReal, Eigen::Dynamic, 1> >
     {
         assert(self.getConstraintProblem());
         auto& lambda = self.getConstraintProblem()->f;
         return { lambda.ptr(), lambda.size()};
     }, sofapython3::doc::constraintsolver::constraintSolver_lambda);
 
-    c.def("dfree", [](ConstraintSolverImpl& self) -> Eigen::Map<Eigen::Matrix<SReal, Eigen::Dynamic, 1> >
+    c.def("dfree", [](GenericConstraintSolver& self) -> Eigen::Map<Eigen::Matrix<SReal, Eigen::Dynamic, 1> >
     {
         assert(self.getConstraintProblem());
         auto& dfree = self.getConstraintProblem()->dFree;
@@ -64,9 +64,9 @@ void moduleAddConstraintSolver(py::module &m)
     }, sofapython3::doc::constraintsolver::constraintSolver_dfree);
 
     /// register the binding in the downcasting subsystem
-    PythonFactory::registerType<ConstraintSolverImpl>([](sofa::core::objectmodel::Base* object)
+    PythonFactory::registerType<GenericConstraintSolver>([](sofa::core::objectmodel::Base* object)
     {
-        return py::cast(dynamic_cast<ConstraintSolverImpl*>(object));
+        return py::cast(dynamic_cast<GenericConstraintSolver*>(object));
     });
 }
 
