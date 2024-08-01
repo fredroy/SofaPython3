@@ -26,6 +26,7 @@
 #include <SofaPython3/Sofa/Helper/System/Submodule_System.h>
 #include <SofaPython3/Sofa/Helper/Binding_MessageHandler.h>
 #include <SofaPython3/Sofa/Helper/Binding_Vector.h>
+#include <SofaPython3/Sofa/Helper/Binding_Utils.h>
 
 /// Makes an alias for the pybind11 namespace to increase readability.
 namespace py { using namespace pybind11; }
@@ -155,6 +156,7 @@ PYBIND11_MODULE(Helper, helper)
     moduleAddMessageHandler(helper);
     moduleAddVector(helper);
     moduleAddSystem(helper);
+    moduleAddUtils(helper);
 }
 
 } ///namespace sofapython3
