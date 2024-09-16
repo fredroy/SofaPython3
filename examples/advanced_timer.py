@@ -2,28 +2,25 @@
 import Sofa
 from SofaRuntime import Timer
 
+g_fromPythonScript = False;
 
 # This controller will extract the timer records from the simulation at each steps
 class TimerController(Sofa.Core.Controller):
+    global g_fromPythonScript;
 
     def __init__(self, *args, **kwargs):
         Sofa.Core.Controller.__init__(self, *args, **kwargs)
 
-        # This is needed to avoid a conflict with the timer of runSofa
-        self.use_sofa_profiler_timer = False
-
     def onAnimateBeginEvent(self, event):
-        if len(Timer.getRecords('Animate')):
-            self.use_sofa_profiler_timer = True
-        else:
-            Timer.setEnabled("cg_timer", True)
-            Timer.begin("cg_timer")
+        # This is needed to avoid a conflict with the timer of runSofa
+        if(not g_fromPythonScript):
+            Timer.setEnabled("Animate", False)
+
+        Timer.setEnabled("cg_timer", True)
+        Timer.begin("cg_timer")
 
     def onAnimateEndEvent(self, event):
-        if self.use_sofa_profiler_timer:
-            records = Timer.getRecords("Animate")
-        else:
-            records = Timer.getRecords("cg_timer")
+        records = Timer.getRecords("cg_timer")
 
         step_time = records['solve']['Mechanical (meca)']['total_time']
         print(f"Step took {step_time:.2f} ms")
@@ -34,8 +31,7 @@ class TimerController(Sofa.Core.Controller):
             CG_iterations = records['solve']['Mechanical (meca)']['StaticSolver::Solve']['NewtonStep'][i]['MBKSolve']['CG iterations']
             print(f"  Newton iteration #{i} took {total_time:.2f} ms using {int(CG_iterations)} CG iterations")
 
-        if not self.use_sofa_profiler_timer:
-            Timer.end("cg_timer")
+        Timer.end("cg_timer")
 
 
 # Scene creation - This is automatically called by SofaPython3 when using runSofa
@@ -85,8 +81,11 @@ def createScene(root):
     root.meca.addObject('QuadPressureForceField', pressure=[0, -30, 0], quadList='@top_roi.quadInROI', showForces=False)
 
 
-# When not using runSofa, this main function will be called python
+# When not using runSofa, this main function will be called by python
 def main():
+    global g_fromPythonScript;
+    g_fromPythonScript = True;
+
     root = Sofa.Core.Node("root")
     createScene(root)
     Sofa.Simulation.init(root)
