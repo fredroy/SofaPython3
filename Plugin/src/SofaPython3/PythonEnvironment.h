@@ -58,7 +58,7 @@ class PythonEnvironmentModule ;
 class SOFAPYTHON3_API PythonEnvironment
 {
 public:
-    static void Init();
+    static void Init(const std::string& pythonEnv = "");
     static void Release();
 
     static bool isInitialized()

@@ -52,7 +52,11 @@ void initExternalModule()
         sofa::simulation::core::init();
         sofa::simulation::graph::init();
 
-        PythonEnvironment::Init();
+        std::string pythonenv{};
+        if (const char* v = std::getenv("OVERRIDE_PYTHON_ENV"))
+            pythonenv = std::string{v};   // copy right away
+
+        PythonEnvironment::Init(pythonenv);
         first = false;
     }
     PythonEnvironment::addPluginManagerCallback();

@@ -168,7 +168,7 @@ SOFAPYTHON3_API py::module PythonEnvironment::importFromFile(const std::string& 
 }
 
 
-void PythonEnvironment::Init()
+void PythonEnvironment::Init(const std::string& envDir)
 {
     std::string pythonVersion = Py_GetVersion();
     msg_info("SofaPython3") << "Initializing with python version " << pythonVersion;
@@ -186,8 +186,34 @@ void PythonEnvironment::Init()
 
     if ( !Py_IsInitialized() )
     {
-        msg_info("SofaPython3") << "Initializing python";
-        py::initialize_interpreter();
+        if(!envDir.empty())
+        {
+#ifdef _WIN32
+            const std::string exe = envDir + "\\Scripts\\python.exe";
+#else
+            const std::string exe = envDir + "/bin/python3";
+#endif
+            std::wstring wExe(exe.begin(), exe.end()); // needs better conversion, would be incompatible with exotic paths
+            PyConfig config;
+            PyConfig_InitPythonConfig(&config);
+            config.user_site_directory = 0;   // don't pick up ~/.local
+
+            PyStatus st = PyConfig_SetString(&config, &config.program_name, wExe.c_str());
+            if (PyStatus_Exception(st))
+            {
+                msg_error("SofaPython3") << "Error while Initializing python";
+                PyConfig_Clear(&config);             // still ours — not handed over yet
+                throw std::runtime_error("PyConfig_SetString(program_name) failed");
+            }
+
+            msg_info("SofaPython3") << "Initializing python";
+            py::initialize_interpreter(&config);
+        }
+        else
+        {
+            py::initialize_interpreter();
+        }
+
         // the first gil aquisition should happen right after the python interpreter
         // is initialized.
         static const PyThreadState* init = PyEval_SaveThread(); (void) init;
