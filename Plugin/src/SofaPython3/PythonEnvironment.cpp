@@ -167,21 +167,18 @@ SOFAPYTHON3_API py::module PythonEnvironment::importFromFile(const std::string& 
     return m;
 }
 
-#ifdef _WIN32
-std::wstring toWideUtf8(const std::string& utf8)
+// Sets a PyConfig field from a UTF-8 std::string, OS-independently.
+// Returns the PyStatus so the caller can check/report failure the same
+// way it already does for PyConfig_SetString.
+PyStatus setConfigStringUtf8(PyConfig& config, wchar_t** field, const std::string& value)
 {
-    if (utf8.empty()) return {};
-    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), nullptr, 0);
-    std::wstring w(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), w.data(), len);
-    return w;
+    return PyConfig_SetBytesString(&config, field, value.c_str());
 }
-#endif
 
 void PythonEnvironment::Init(const std::string& envDir)
 {
     std::string pythonVersion = Py_GetVersion();
-    msg_info("SofaPython3") << "Initializing with python version " << pythonVersion;
+    msg_info("SofaPython3") << "has been compiled with python version " << pythonVersion;
 
     if( !SceneLoaderFactory::getInstance()->getEntryFileExtension("py3") )
     {
@@ -201,10 +198,8 @@ void PythonEnvironment::Init(const std::string& envDir)
             
 #ifdef _WIN32
             const std::string exe = envDir + "\\Scripts\\python.exe";
-            std::wstring wExe = toWideUtf8(exe);
 #else
             const std::string exe = envDir + "/bin/python3";
-            std::wstring wExe(exe.begin(), exe.end()); // needs better conversion, would be incompatible with exotic paths
 #endif
 
             PyConfig config;
@@ -212,7 +207,7 @@ void PythonEnvironment::Init(const std::string& envDir)
             config.user_site_directory = 0;   // don't pick up ~/.local
             config.use_environment = 0;
 
-            PyStatus st = PyConfig_SetString(&config, &config.program_name, wExe.c_str());
+            PyStatus st = setConfigStringUtf8(config, &config.program_name, exe);
             if (PyStatus_Exception(st))
             {
                 msg_error("SofaPython3") << "Error while Initializing python";
@@ -220,7 +215,7 @@ void PythonEnvironment::Init(const std::string& envDir)
                 throw std::runtime_error("PyConfig_SetString(program_name) failed");
             }
 
-            st = PyConfig_SetString(&config, &config.executable, wExe.c_str());   // <-- the missing piece
+            st = setConfigStringUtf8(config, &config.executable, exe);
             if (PyStatus_Exception(st))
             {
                 msg_error("SofaPython3") << "Error while Initializing python";
@@ -228,8 +223,7 @@ void PythonEnvironment::Init(const std::string& envDir)
                 throw std::runtime_error("PyConfig_SetString(executable) failed");
             }
 
-            //msg_info("SofaPython3") << "Initializing python with " << exe;
-            std::wcout << "Initializing python with " << wExe << std::endl;;
+            msg_info("SofaPython3") << "Initializing python with " << exe;
             PyStatus status = Py_InitializeFromConfig(&config);
             PyConfig_Clear(&config);
             if (PyStatus_Exception(status)) {
