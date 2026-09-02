@@ -44,6 +44,7 @@ SOFAPYTHON3_API bool moduleIsInitialized();
 void initExternalModule()
 {
     static bool first = true;
+
     if (first)
     {
         sofa::helper::init();
@@ -54,7 +55,10 @@ void initExternalModule()
 
         std::string pythonenv{};
         if (const char* v = std::getenv("OVERRIDE_PYTHON_ENV"))
-            pythonenv = std::string{v};   // copy right away
+        {
+            pythonenv = std::string{ v };   // copy right away
+            msg_warning("SofaPython3") << "Using override Python environment: " << pythonenv;
+        }
 
         PythonEnvironment::Init(pythonenv);
         first = false;

@@ -167,6 +167,16 @@ SOFAPYTHON3_API py::module PythonEnvironment::importFromFile(const std::string& 
     return m;
 }
 
+#ifdef _WIN32
+std::wstring toWideUtf8(const std::string& utf8)
+{
+    if (utf8.empty()) return {};
+    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), nullptr, 0);
+    std::wstring w(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), w.data(), len);
+    return w;
+}
+#endif
 
 void PythonEnvironment::Init(const std::string& envDir)
 {
@@ -188,15 +198,19 @@ void PythonEnvironment::Init(const std::string& envDir)
     {
         if(!envDir.empty())
         {
+            
 #ifdef _WIN32
             const std::string exe = envDir + "\\Scripts\\python.exe";
+            std::wstring wExe = toWideUtf8(exe);
 #else
             const std::string exe = envDir + "/bin/python3";
-#endif
             std::wstring wExe(exe.begin(), exe.end()); // needs better conversion, would be incompatible with exotic paths
+#endif
+
             PyConfig config;
             PyConfig_InitPythonConfig(&config);
             config.user_site_directory = 0;   // don't pick up ~/.local
+            config.use_environment = 0;
 
             PyStatus st = PyConfig_SetString(&config, &config.program_name, wExe.c_str());
             if (PyStatus_Exception(st))
@@ -206,8 +220,25 @@ void PythonEnvironment::Init(const std::string& envDir)
                 throw std::runtime_error("PyConfig_SetString(program_name) failed");
             }
 
-            msg_info("SofaPython3") << "Initializing python";
-            py::initialize_interpreter(&config);
+            st = PyConfig_SetString(&config, &config.executable, wExe.c_str());   // <-- the missing piece
+            if (PyStatus_Exception(st))
+            {
+                msg_error("SofaPython3") << "Error while Initializing python";
+                PyConfig_Clear(&config);             // still ours — not handed over yet
+                throw std::runtime_error("PyConfig_SetString(executable) failed");
+            }
+
+            //msg_info("SofaPython3") << "Initializing python with " << exe;
+            std::wcout << "Initializing python with " << wExe << std::endl;;
+            PyStatus status = Py_InitializeFromConfig(&config);
+            PyConfig_Clear(&config);
+            if (PyStatus_Exception(status)) {
+                if (PyStatus_IsExit(status)) {
+                    std::exit(status.exitcode);
+                }
+                msg_error("SofaPython3") << "Py_InitializeFromConfig failed";
+                Py_ExitStatusException(status); // prints the exact reason and aborts
+            }
         }
         else
         {
@@ -273,7 +304,7 @@ void PythonEnvironment::Init(const std::string& envDir)
         msg_deprecated("SofaPython3") << deprecatedEnvVarName << " and " << envVarName << " environment variables are both set.";
         msg_deprecated("SofaPython3") << deprecatedEnvVarName << " is deprecated, and only " << envVarName << " will be used.";
     }
-    
+
     sofa::helper::system::FileRepository pluginPathsRepository(envVarName.c_str());
     const auto& pluginPaths = pluginPathsRepository.getPaths();
     for (auto pluginPath : pluginPaths)
