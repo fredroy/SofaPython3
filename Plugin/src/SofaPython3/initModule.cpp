@@ -31,6 +31,62 @@ using sofapython3::PythonEnvironment;
 #include <sofa/helper/init.h>
 #include <sofa/simulation/graph/init.h>
 
+
+std::optional<std::string> get_env_var(const std::string& name) 
+{
+#ifdef _WIN32
+    // Convert UTF-8 name to UTF-16 for the wide Win32 API.
+    int wname_len = MultiByteToWideChar(
+        CP_UTF8, 0, name.c_str(), -1, nullptr, 0);
+    if (wname_len <= 0) 
+    {
+        return std::nullopt;
+    }
+    std::wstring wname(static_cast<size_t>(wname_len) - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, name.c_str(), -1, wname.data(), wname_len);
+
+    // First call: find required buffer size.
+    DWORD size = GetEnvironmentVariableW(wname.c_str(), nullptr, 0);
+    if (size == 0) 
+    {
+        // Not set. (Call GetLastError() if you need to distinguish
+        // "unset" from "set to empty string" — ERROR_ENVVAR_NOT_FOUND.)
+        return std::nullopt;
+    }
+
+    std::wstring wvalue(size, L'\0');
+    DWORD written = GetEnvironmentVariableW(wname.c_str(), wvalue.data(), size);
+    if (written == 0 || written >= size) 
+    {
+        return std::nullopt;
+    }
+    wvalue.resize(written); // drop the trailing null counted in `size`
+
+    // Convert back to UTF-8 for a stable, platform-independent return type.
+    int utf8_len = WideCharToMultiByte(
+        CP_UTF8, 0, wvalue.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (utf8_len <= 0) 
+    {
+        return std::nullopt;
+    }
+    std::string result(static_cast<size_t>(utf8_len) - 1, '\0');
+    WideCharToMultiByte(
+        CP_UTF8, 0, wvalue.c_str(), -1, result.data(), utf8_len, nullptr, nullptr);
+
+    return result;
+
+#else
+    // Linux / macOS: environ-backed getenv() is consistent with setenv(),
+    // so no cache-sync issue exists here.
+    const char* value = std::getenv(name.c_str());
+    if (value == nullptr) 
+    {
+        return std::nullopt;
+    }
+    return std::string(value);
+#endif
+}
+
 extern "C" {
 
 SOFAPYTHON3_API void initExternalModule();
@@ -54,10 +110,15 @@ void initExternalModule()
         sofa::simulation::graph::init();
 
         std::string pythonenv{};
-        if (const char* v = std::getenv("OVERRIDE_PYTHON_ENV"))
+        auto env_var = get_env_var("OVERRIDE_PYTHON_ENV");
+        if (env_var.has_value())
         {
-            pythonenv = std::string{ v };   // copy right away
+            pythonenv = env_var.value();
             msg_warning("SofaPython3") << "Using override Python environment: " << pythonenv;
+        }
+        else
+        {
+            msg_warning("SofaPython3") << "OVERRIDE_PYTHON_ENV is empty.";
         }
 
         PythonEnvironment::Init(pythonenv);
