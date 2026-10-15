@@ -168,7 +168,7 @@ function(SP3_add_python_module)
         target_compile_options(${A_TARGET} PUBLIC -fsized-deallocation)
     endif()
 
-    if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    if (NOT MSVC)
         target_compile_options(${A_TARGET} PRIVATE -Dregister=)
     endif()
 
@@ -309,7 +309,7 @@ function(SP3_add_python_module)
         )
     endif()
 
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    if (MSVC)
         set_target_properties(
             ${A_TARGET}
             PROPERTIES
