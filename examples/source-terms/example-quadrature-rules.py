@@ -138,8 +138,8 @@ def createScene(root):
     def addQuadratureDegreeNode(name, quadrature_degree, showColor, edgeColor):
         # Starts at rest, loaded by the manufactured body force, integrated with the given quadrature degree.
         with quadratureDegrees.addChild(name) as node:
-            node.addObject("NewtonRaphsonSolver", name="newton", maxNbIterationsNewton="1", absoluteResidualStoppingThreshold="1e-8")
-            node.addObject("StaticSolver", newtonSolver="@newton")
+            node.addObject("StaticEquilibriumIntegrationScheme", name="newton", maxNbIterationsNewton="1", residualThreshold="1e-8")
+            node.addObject("StaticSolver", linearSolver="@newton")
             node.addObject("SparseLDLSolver", name="linear_solver", template="CompressedRowSparseMatrixd")
 
             node.addObject("MechanicalObject", name="dofs", template="Vec2", src="@../grid", showObject="true", drawMode="1", showObjectScale="0.005", showColor=showColor)
