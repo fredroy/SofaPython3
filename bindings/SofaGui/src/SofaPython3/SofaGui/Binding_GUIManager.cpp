@@ -124,12 +124,15 @@ void moduleAddGuiManager(py::module& m)
         :type filename: str
         :return: 0 if the main loop succeed, 1 otherwise
     )doc";
+    // The GIL is released for the whole loop: a GUI may run the simulation in another
+    // thread, whose Python components take the GIL (as do those run by the GUI thread).
+    // Holding it here would block that thread, and the GUI waiting on it, forever.
     guiManager.def_static("MainLoop", [](sofa::simulation::Node & node, const std::string & filename) -> int {
         return sofa::gui::common::GUIManager::MainLoop(&node, filename.c_str());
-    }, mainLoopDoc);
+    }, mainLoopDoc, py::call_guard<py::gil_scoped_release>());
     guiManager.def_static("MainLoop", [](sofa::simulation::Node & node) -> int {
         return sofa::gui::common::GUIManager::MainLoop(&node);
-    }, mainLoopDoc);
+    }, mainLoopDoc, py::call_guard<py::gil_scoped_release>());
 
 
     /*
